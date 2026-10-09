@@ -11,7 +11,7 @@ import pl.neontext.client.anim.AnimStyle;
  * {@link #style()} instead of whatever the ambient target says. Holograms and the GUI live preview
  * both use this, which is why the preview shows the effect even while that effect is switched off.
  */
-public final class NeonTextSequence implements FormattedCharSequence {
+public class NeonTextSequence implements FormattedCharSequence {
 
     private final FormattedCharSequence delegate;
     private final AnimStyle style;

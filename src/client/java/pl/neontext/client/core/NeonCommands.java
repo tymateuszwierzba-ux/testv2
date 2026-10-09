@@ -8,6 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import pl.neontext.client.anim.AnimStyle;
 import pl.neontext.client.anim.AnimTarget;
 import pl.neontext.client.anim.Effect;
@@ -355,7 +356,7 @@ public final class NeonCommands {
         ctx.getSource().sendError(prefix().append(Component.literal(text)));
     }
 
-    private static Component prefix() {
+    private static MutableComponent prefix() {
         return Component.literal("\u00A7b\u00A7lNeon \u00A78\u00BB \u00A7r");
     }
 }

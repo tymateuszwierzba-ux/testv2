@@ -78,7 +78,7 @@ public final class EffectEngine {
 
             case FLICKER -> {
                 float n = ColorUtil.noiseAt(seed, index, timeMs, 90);
-                float base = palette.sample(idxPhase * 0.4f + phase * 0.1f);
+                int base = palette.sample(idxPhase * 0.4f + phase * 0.1f);
                 // 25% of glyphs dim out at any moment, the rest stay lit
                 color = n > 0.75f ? ColorUtil.multiplyAlpha(base, 0.15f + 0.2f * amp) : base;
             }

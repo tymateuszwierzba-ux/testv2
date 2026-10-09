@@ -60,6 +60,26 @@ public class HologramsPanel extends Panel {
         NeonRuntime.save();
     }
 
+    /** Creates a hologram at the player's position and selects it. */
+    private void addHologram() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) {
+            return;
+        }
+        String id = newId == null || newId.isBlank() ? "holo" : newId.trim();
+        if (NeonRuntime.config().hologram(id) != null) {
+            selectedId = id; // already exists - just select it
+            rebuild();
+            return;
+        }
+        Hologram h = new Hologram(id, newText == null || newText.isEmpty() ? "Hello world" : newText,
+                mc.player.getX(), mc.player.getY() + 2.2, mc.player.getZ());
+        h.style = NeonRuntime.config().style(pl.neontext.client.anim.AnimTarget.HOLOGRAM).copy();
+        HologramManager.add(h);
+        selectedId = id;
+        rebuild();
+    }
+
     // ------------------------------------------------------------------ build
 
     @Override

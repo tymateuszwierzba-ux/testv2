@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import pl.neontext.client.anim.AnimStyle;
 import pl.neontext.client.anim.AnimTarget;
 import pl.neontext.client.anim.Effect;

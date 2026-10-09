@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "neontext",
+  "version": "${version}",
+  "name": "NeonText",
+  "description": "Client-side animated text engine: nameplates, tab list, chat and world holograms with a full GUI and creators page.",
+  "authors": [
+    "Tymoteusz",
+    "NeonText Team"
+  ],
+  "contact": {
+    "sources": "https://github.com/tymateuszwierzba-ux/testv2",
+    "homepage": "https://github.com/tymateuszwierzba-ux/testv2"
+  },
+  "license": "MIT",
+  "icon": "assets/neontext/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["pl.neontext.client.NeonTextClient"]
+  },
+  "mixins": [
+    {
+      "config": "neontext.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.0",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

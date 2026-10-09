@@ -57,6 +57,13 @@ public final class NeonCommands {
         return builder.buildFuture();
     };
 
+    private static final SuggestionProvider<FabricClientCommandSource> TABS = (ctx, builder) -> {
+        for (pl.neontext.client.gui.NeonScreen.Tab tab : pl.neontext.client.gui.NeonScreen.Tab.values()) {
+            builder.suggest(tab.key);
+        }
+        return builder.buildFuture();
+    };
+
     private NeonCommands() {
     }
 
@@ -66,10 +73,16 @@ public final class NeonCommands {
                     openGui(ctx, null);
                     return 1;
                 })
-                .then(literal("gui").executes(ctx -> {
-                    openGui(ctx, null);
-                    return 1;
-                }))
+                .then(literal("gui")
+                        .executes(ctx -> {
+                            openGui(ctx, null);
+                            return 1;
+                        })
+                        .then(argument("tab", StringArgumentType.word()).suggests(TABS)
+                                .executes(ctx -> {
+                                    openGui(ctx, StringArgumentType.getString(ctx, "tab"));
+                                    return 1;
+                                })))
                 .then(literal("toggle").executes(NeonCommands::toggle))
                 .then(literal("reload").executes(NeonCommands::reload))
                 .then(literal("reset").executes(NeonCommands::reset))

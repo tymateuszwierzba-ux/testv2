@@ -48,7 +48,8 @@ jobs:
 
       - name: Verify and list jar contents
         run: |
-          JAR=$(ls build/libs/neontext-*.jar | head -1)
+          JAR=$(ls build/libs/neontext-*.jar | grep -v sources | head -1)
+          echo "Verifying $JAR"
           {
             echo '### Jar contents'
             echo '```'
@@ -63,7 +64,13 @@ jobs:
               echo "::error::jar is missing $required"
             fi
           done
-          unzip -l "$JAR" | grep -c "\.class" | xargs -I{} echo "::notice::jar contains {} classes"
+          for cls in NeonTextClient NeonScreen CreatorsPanel HologramsPanel FontMixin HudMixin EffectEngine; do
+            if unzip -l "$JAR" | grep -q "$cls.class"; then
+              echo "::notice::jar contains $cls.class"
+            else
+              echo "::error::jar is missing $cls.class"
+            fi
+          done
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v5

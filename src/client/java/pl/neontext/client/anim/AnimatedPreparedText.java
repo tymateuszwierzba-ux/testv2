@@ -3,7 +3,6 @@ package pl.neontext.client.anim;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.EmptyArea;
 import net.minecraft.client.gui.font.TextRenderable;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 
 /**
  * Decorates a vanilla {@link Font.PreparedText} so every glyph leaves {@link #visit} wrapped in an
@@ -40,48 +39,45 @@ public final class AnimatedPreparedText implements Font.PreparedText {
         this.clock = clock == null ? () -> timeMs : clock;
     }
 
+    /** The vanilla prepared text underneath - used to rewrap with a different target style. */
+    public Font.PreparedText unwrap() {
+        return delegate;
+    }
+
     @Override
     public void visit(Font.GlyphVisitor visitor) {
-        // one shared counter keeps the glyph index aligned with the character index, including
-        // spaces (which arrive as empty areas) and underline/strikethrough effects
+        // one shared counter keeps the glyph index aligned with the character index: glyphs and
+        // empty areas (spaces) advance it, decorative effects do not
         final int[] index = {0};
         delegate.visit(new Font.GlyphVisitor() {
 
             @Override
             public void acceptGlyph(TextRenderable.Styled glyph) {
-                visitor.acceptRenderable(wrap(glyph, index[0]++));
+                visitor.acceptGlyph(new AnimatedRenderable(glyph, style, index[0], total, seed, clock));
+                index[0]++;
             }
 
             @Override
             public void acceptEffect(TextRenderable effect) {
-                visitor.acceptRenderable(wrap(effect, index[0]++));
+                // underline/strikethrough stay vanilla - and so must the chat background plate,
+                // which also arrives here and must never move or change colour
+                visitor.acceptEffect(effect);
+            }
+
+            @Override
+            public void acceptEmptyArea(EmptyArea empty) {
+                visitor.acceptEmptyArea(empty);
+                index[0]++;
             }
 
             @Override
             public void acceptRenderable(TextRenderable renderable) {
-                visitor.acceptRenderable(wrap(renderable, index[0]++));
-            }
-
-            @Override
-            public void acceptEmptyArea(EmptyArea area) {
-                index[0]++;
-                visitor.acceptEmptyArea(area);
+                if (renderable instanceof TextRenderable.Styled styled) {
+                    acceptGlyph(styled);
+                } else {
+                    acceptEffect(renderable);
+                }
             }
         });
-    }
-
-    private TextRenderable wrap(TextRenderable renderable, int i) {
-        GlyphStyle g = EffectEngine.compute(style, i, total, renderable.left(), renderable.top(),
-                clock.getAsLong(), seed);
-        return new AnimatedRenderable(renderable, g);
-    }
-
-    @Override
-    public ScreenRectangle bounds() {
-        return delegate.bounds();
-    }
-
-    public AnimStyle style() {
-        return style;
     }
 }

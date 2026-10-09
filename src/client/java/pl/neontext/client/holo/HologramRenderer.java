@@ -57,6 +57,11 @@ public final class HologramRenderer {
         int screenWidth = mc.getWindow().getWidth();
         int screenHeight = mc.getWindow().getHeight();
 
+        // refresh the screen-space cache used by click-to-select (crosshair picking)
+        for (Hologram known : HologramManager.all()) {
+            known.onScreen = false;
+        }
+
         for (Hologram h : holograms) {
             Vector4f clip = new Vector4f((float) (h.x - camPos.x), (float) (h.y - camPos.y),
                     (float) (h.z - camPos.z), 1.0f);
@@ -89,6 +94,12 @@ public final class HologramRenderer {
         FormattedCharSequence plain = component.getVisualOrderText();
         float width = font.width(plain);
         float height = font.lineHeight;
+
+        h.onScreen = true;
+        h.screenLeft = guiX - width * scale * 0.5f;
+        h.screenRight = guiX + width * scale * 0.5f;
+        h.screenTop = guiY;
+        h.screenBottom = guiY + height * scale;
 
         Matrix3x2fStack pose = extractor.pose();
         pose.pushMatrix();

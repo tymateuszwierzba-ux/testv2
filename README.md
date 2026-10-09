@@ -3,6 +3,7 @@
 **Klientowy silnik animowanego tekstu do Minecrafta 26.3 (Fabric).** Twój nick, ranga, lista
 graczy, czat i hologramy mogą się animować — tęczowo, płonąć, migać neonem, skakać, „glitchować"
 albo wyglądać jak terminal Matrix. Wszystko po stronie klienta, bez serwera i bez pluginów.
+**Bez GUI — same komendy**, plus klikanie w hologramy i tekst na czacie.
 
 ![NeonText](src/client/resources/assets/neontext/icon.png)
 
@@ -15,13 +16,14 @@ albo wyglądać jak terminal Matrix. Wszystko po stronie klienta, bez serwera i 
   stylem; opcja „tylko moja nazwa", żeby nie ruszać nicków innych graczy.
 - **5 niezależnych celów** — Nameplates, Tab list, Chat, Hologramy, GUI & HUD — każdy z własnym
   efektem, paletą, prędkością, amplitudą, wielkością, poświatą i cieniem.
-- **Hologramy w świecie** — teksty widoczne tylko dla Ciebie: dodawane komendą lub z GUI,
-  z własnym stylem animacji, skalą i zasięgiem.
-- **Pełne GUI (klawisz `K`)** — podgląd na żywo, edytor palety kolorów, suwaki, presety
-  (Rainbow Flex, Vaporwave, Owner, Admin, VIP, YouTube…), menedżer hologramów, ustawienia
-  globalne i **strona z twórcami** z animowanymi nickami.
-- **Komenda `/neon`** — wszystko da się zrobić też z konsoli czatu.
+- **Klikanie = edycja** — kliknij hologram na świecie (celownik) albo tekst na czacie, a mod go
+  zaznaczy i od razu zamieni na kolejny preset. To samo da się zrobić komendą `/neon select`.
+- **Hologramy w świecie** — teksty widoczne tylko dla Ciebie: dodawane komendą, z własnym stylem
+  animacji, skalą i zasięgiem.
+- **Tylko komendy** — pełna obsługa z czatu: presety (Rainbow Flex, Vaporwave, Owner, Admin, VIP,
+  YouTube…), edycja palety, suwaki parametrów, przełączniki — `/neon help` pokazuje wszystko.
 - **Konfiguracja w `config/neontext.json`** — czytelny JSON, ręczna edycja bez ryzyka crasha.
+- **`/neon debug`** — liczniki diagnostyczne, gdy coś wygląda nie tak.
 
 ## Wymagania
 
@@ -34,7 +36,7 @@ albo wyglądać jak terminal Matrix. Wszystko po stronie klienta, bez serwera i 
 
 1. Zainstaluj Fabric Loader dla Minecrafta 26.3.
 2. Wrzuć `neontext-1.0.0.jar` oraz `fabric-api` do folderu `mods/`.
-3. Wejdź na serwer / do świata i naciśnij **K** (albo wpisz `/neon`).
+3. Wejdź na serwer / do świata i wpisz `/neon`.
 
 ## Budowanie
 
@@ -48,34 +50,40 @@ Każdy push przechodzi też przez CI (GitHub Actions) — gotowy `.jar` znajdzie
 
 ## Komendy
 
+Wszystko obraca się wokół **zaznaczenia**: klikasz hologram / tekst na czacie (albo wpisujesz
+`/neon select`), a potem edytujesz zaznaczony obiekt.
+
 | Komenda | Opis |
 | --- | --- |
-| `/neon` | otwiera GUI |
-| `/neon toggle` | włącza / wyłącza wszystkie animacje |
-| `/neon effect <cel> <efekt>` | ustawia efekt (np. `/neon effect nameplate rainbow_bounce`) |
-| `/neon preset <cel> <preset>` | aplikuje preset (np. `/neon preset tab Owner`) |
-| `/neon speed <cel> <0-10>` | prędkość animacji |
-| `/neon hologram here <id> <tekst>` | hologram w Twojej pozycji |
-| `/neon hologram list / remove / text / move / scale / edit` | zarządzanie hologramami |
-| `/neon reload` / `/neon reset` | przeładowanie configu / reset stylów |
-
-Cele: `nameplate`, `tab`, `chat`, `hologram`, `gui`.
+| `/neon` | status: włączone efekty i aktualne zaznaczenie |
+| `/neon help` | lista komend |
+| `/neon select <cel\|id>` | zaznacz: `nameplate`, `tab`, `chat`, `holograms`, `gui`, `none` albo id hologramu |
+| `/neon select` | zaznacz hologram pod celownikiem |
+| `/neon next` | zamienia zaznaczony obiekt na kolejny preset |
+| `/neon effect <efekt>` | ustawia efekt zaznaczenia (np. `/neon effect rainbow_bounce`) |
+| `/neon preset <preset>` | aplikuje preset (np. `/neon preset Owner`) |
+| `/neon speed\|amplitude\|spread\|size\|saturation\|brightness <0-10>` | suwaki parametrów |
+| `/neon shadow\|glow\|onlyme <on\|off>` | przełączniki stylu |
+| `/neon palette rainbow` / `/neon palette #FF0000 #00FF00` | paleta kolorów |
+| `/neon on\|off\|reset\|toggle` | włącza/wyłącza zaznaczenie, resetuje styl, master switch |
+| `/neon click <on\|off>` | klikanie = zaznaczanie i zamiana |
+| `/neon holo here <id> <tekst>` | hologram w Twojej pozycji |
+| `/neon holo add / remove / list / text / move / scale / distance` | zarządzanie hologramami |
+| `/neon reload` / `/neon debug` / `/neon creators` | config / diagnostyka / twórcy |
 
 ## Struktura
 
 - `src/client/java/pl/neontext/client/anim` — silnik efektów (czysta matematyka + rendering glifów)
-- `src/client/java/pl/neontext/client/gui` — GUI: ekrany, panele, widgety neonowe
 - `src/client/java/pl/neontext/client/holo` — hologramy po stronie klienta
-- `src/client/java/pl/neontext/client/mixin` — haki w pipeline tekstu (font, HUD, chat, tab)
-- `src/client/java/pl/neontext/client/core` — runtime, kontekst tekstu, komendy
+- `src/client/java/pl/neontext/client/mixin` — haki w pipeline tekstu (font, HUD, chat, tab, klikanie)
+- `src/client/java/pl/neontext/client/core` — runtime, kontekst tekstu, komendy, klikanie
+- `src/client/java/pl/neontext/client/cfg` — konfiguracja i presety
 
 ## Twórcy
 
 - **Tymoteusz** ([@tymateuszwierzba-ux](https://github.com/tymateuszwierzba-ux)) — Owner & Lead Developer
-- **NeonText Team** — efekty i design
-- Podziękowania dla społeczności Fabric — GUI z twórcami znajdziesz też w samym modzie (zakładka
-  *Creators*).
+- **Oskar** ([@Oskarko121](https://github.com/Oskarko121)) — Helper
+- `/neon creators` wyświetla twórców w grze.
 
 ## Licencja
 
-MIT — patrz plik [LICENSE](LICENSE).

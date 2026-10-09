@@ -3,99 +3,111 @@ package pl.neontext.client.anim;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 /**
- * Replaces the colour of every emitted glyph vertex with the animated colour.
+ * Feeds the GPU the same geometry as vanilla, but repaints every quad with the animated colour.
  *
- * <p>Baked glyphs are immutable records, so the colour cannot be swapped from the outside. What we
- * can do is intercept the vertices on their way into the mesh: vanilla always emits a glyph as
- * groups of four vertices ({@code addVertex -> setColor -> setUv -> setLight}) and, when the glyph
- * has a shadow, it emits the shadow group first. Counting groups therefore tells us exactly which
- * vertices belong to the body and which to the shadow, so the shadow keeps its dark colour and only
- * the body is animated.
+ * <p>Colour detection is exact-value based: vanilla emits {@code setColor(bodyColor)} for letter
+ * quads and {@code setColor(shadowColor)} for the shadow quads (two of each when the style is bold).
+ * Matching the packed value keeps bold shadows dark and - crucially - leaves any other colour
+ * (chat background plates, underlines) completely untouched. This works for every glyph
+ * implementation in 26.3, not just {@code PlainTextRenderable}.
  */
 public final class RecoloringVertexConsumer implements VertexConsumer {
 
     private final VertexConsumer delegate;
-    private final int rgb;
-    private final int alpha;
-    private final boolean hasShadow;
+    private final int originalBody;
+    private final int originalShadow;
+    private final int body;
+    private final int shadow;
+    private final int alphaMul;
 
-    private int group;
-    private int indexInGroup;
+    public RecoloringVertexConsumer(VertexConsumer delegate, int originalBody, int originalShadow,
+                                    int body, int shadow) {
+        this(delegate, originalBody, originalShadow, body, shadow, 255);
+    }
 
-    /**
-     * @param delegate    the real consumer
-     * @param animated    packed ARGB the glyph body should get
-     * @param original    the glyph's own packed ARGB, used to carry over its alpha
-     * @param hasShadow   whether vanilla will emit a shadow group before the body
-     */
-    public RecoloringVertexConsumer(VertexConsumer delegate, int animated, int original, boolean hasShadow) {
+    public RecoloringVertexConsumer(VertexConsumer delegate, int originalBody, int originalShadow,
+                                    int body, int shadow, int alphaMul) {
         this.delegate = delegate;
-        this.rgb = animated & 0x00FFFFFF;
-        // a widget that is fading out carries its alpha in the glyph colour - keep that
-        int oa = (original >>> 24) & 0xFF;
-        int aa = (animated >>> 24) & 0xFF;
-        this.alpha = oa == 255 ? aa : (oa * aa) / 255;
-        this.hasShadow = hasShadow;
+        this.originalBody = originalBody;
+        this.originalShadow = originalShadow;
+        this.body = body;
+        this.shadow = shadow;
+        this.alphaMul = Math.max(0, Math.min(255, alphaMul));
     }
 
     @Override
     public VertexConsumer addVertex(float x, float y, float z) {
-        indexInGroup++;
-        return delegate.addVertex(x, y, z);
+        delegate.addVertex(x, y, z);
+        return this;
     }
 
     @Override
-    public VertexConsumer setColor(int r, int g, int b, int a) {
-        return delegate.setColor(r, g, b, a);
-    }
-
-    @Override
-    public VertexConsumer setColor(int packed) {
-        if (isBodyGroup()) {
-            return delegate.setColor((alpha << 24) | rgb);
-        }
-        return delegate.setColor(packed);
+    public VertexConsumer setColor(int red, int green, int blue, int alpha) {
+        delegate.setColor(red, green, blue, alpha);
+        return this;
     }
 
     @Override
     public VertexConsumer setUv(float u, float v) {
-        if (indexInGroup >= 4) {
-            indexInGroup = 0;
-            group++;
-        }
-        return delegate.setUv(u, v);
+        delegate.setUv(u, v);
+        return this;
     }
 
     @Override
     public VertexConsumer setUv1(int u, int v) {
-        return delegate.setUv1(u, v);
+        delegate.setUv1(u, v);
+        return this;
     }
 
     @Override
     public VertexConsumer setUv2(int u, int v) {
-        return delegate.setUv2(u, v);
+        delegate.setUv2(u, v);
+        return this;
     }
 
     @Override
     public VertexConsumer setUv3(float u, float v) {
-        return delegate.setUv3(u, v);
-    }
-
-    @Override
-    public VertexConsumer setNormal(float x, float y, float z) {
-        return delegate.setNormal(x, y, z);
+        delegate.setUv3(u, v);
+        return this;
     }
 
     @Override
     public VertexConsumer setLineWidth(float width) {
-        return delegate.setLineWidth(width);
+        delegate.setLineWidth(width);
+        return this;
     }
 
-    /**
-     * Group 0 is the shadow when there is one. Bold text emits two body groups, and everything from
-     * group 1 on is body, so the check stays correct for bold and italic glyphs too.
-     */
-    private boolean isBodyGroup() {
-        return hasShadow ? group >= 1 : true;
+    @Override
+    public VertexConsumer setNormal(float x, float y, float z) {
+        delegate.setNormal(x, y, z);
+        return this;
+    }
+
+    @Override
+    public VertexConsumer setColor(int packed) {
+        int out;
+        if (packed == originalBody) {
+            out = body;
+        } else if (originalShadow != 0 && packed == originalShadow) {
+            out = shadow;
+        } else {
+            out = packed;
+        }
+        if (alphaMul < 255) {
+            int a = ColorUtil.alpha(out) * alphaMul / 255;
+            out = (a << 24) | (out & 0xFFFFFF);
+        }
+        delegate.setColor(out);
+        return this;
+    }
+
+    @Override
+    public void setLight(int uv) {
+        delegate.setLight(uv);
+    }
+
+    @Override
+    public void setOverlay(int uv) {
+        delegate.setOverlay(uv);
     }
 }

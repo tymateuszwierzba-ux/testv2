@@ -1,4 +1,3 @@
 {
-  "key.neontext.open": "Open NeonText GUI",
-  "key.neontext.open.desc": "Opens the animation editor with creators and holograms"
+  "neontext.name": "NeonText"
 }

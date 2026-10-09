@@ -4,10 +4,12 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "ChatComponentMixin",
+    "ChatScreenMixin",
     "FontMixin",
     "GuiRenderStateMixin",
     "GuiTextRenderStateMixin",
     "HudMixin",
+    "MinecraftMixin",
     "PlayerTabOverlayMixin",
     "TextFeatureRendererMixin"
   ],

@@ -64,7 +64,7 @@ jobs:
               echo "::error::jar is missing $required"
             fi
           done
-          for cls in NeonTextClient NeonScreen CreatorsPanel HologramsPanel FontMixin HudMixin EffectEngine; do
+          for cls in NeonTextClient NeonCommands NeonClick ChatScreenMixin MinecraftMixin FontMixin HudMixin EffectEngine AnimatedRenderable; do
             if unzip -l "$JAR" | grep -q "$cls.class"; then
               echo "::notice::jar contains $cls.class"
             else

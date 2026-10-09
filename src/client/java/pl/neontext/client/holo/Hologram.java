@@ -62,6 +62,18 @@ public final class Hologram {
         return dx * dx + dy * dy + dz * dz <= (double) maxDistance * maxDistance;
     }
 
+    public double distanceSq(double px, double py, double pz) {
+        double dx = x - px, dy = y - py, dz = z - pz;
+        return dx * dx + dy * dy + dz * dz;
+    }
+
+    // --- screen-space cache, refreshed by the HUD renderer, used by click-to-select ---
+    public transient boolean onScreen;
+    public transient float screenLeft;
+    public transient float screenTop;
+    public transient float screenRight;
+    public transient float screenBottom;
+
     /** Stable per-hologram seed so glitch/flicker patterns differ between holograms. */
     public int seed() {
         return id.hashCode();

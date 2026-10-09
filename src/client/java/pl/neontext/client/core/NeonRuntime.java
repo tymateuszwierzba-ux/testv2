@@ -17,7 +17,39 @@ public final class NeonRuntime {
     private static long animTimeMs;
     private static long lastRealMs;
 
+    // --- command/click selection: which thing the edit commands act on ---
+    /** Selected regular target (nameplate/tab/chat/...), or null. */
+    public static AnimTarget selectedTarget;
+    /** Selected hologram id, or null. Takes precedence over {@link #selectedTarget}. */
+    public static String selectedHolo;
+    /** Click a hologram / chat text to select it and swap its preset. */
+    public static boolean clickSelect = true;
+    /** Where {@code /neon next} continues for the current selection. */
+    static int lastPresetIndex = -1;
+
     private NeonRuntime() {
+    }
+
+    public static void select(AnimTarget target) {
+        selectedTarget = target;
+        selectedHolo = null;
+        lastPresetIndex = -1;
+    }
+
+    public static void selectHolo(String id) {
+        selectedHolo = id;
+        selectedTarget = null;
+        lastPresetIndex = -1;
+    }
+
+    public static void selectNone() {
+        selectedTarget = null;
+        selectedHolo = null;
+        lastPresetIndex = -1;
+    }
+
+    public static boolean hasSelection() {
+        return selectedTarget != null || selectedHolo != null;
     }
 
     public static NeonConfig config() {

@@ -3,7 +3,7 @@
   "id": "neontext",
   "version": "${version}",
   "name": "NeonText",
-  "description": "Client-side animated text engine: nameplates, tab list, chat and world holograms with a full GUI and creators page.",
+  "description": "Client-side animated text engine: nameplates, tab list, chat and world holograms. Commands only - click a hologram or chat text to edit it.",
   "authors": [
     "Tymoteusz",
     "NeonText Team"

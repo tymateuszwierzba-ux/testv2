@@ -43,7 +43,8 @@ albo wyglądać jak terminal Matrix. Wszystko po stronie klienta, bez serwera i 
 # gotowy mod: build/libs/neontext-1.0.0.jar
 ```
 
-Build przechodzi też w CI (GitHub Actions) — patrz zakładka **Actions**.
+Każdy push przechodzi też przez CI (GitHub Actions) — gotowy `.jar` znajdziesz w zakładce
+**Actions** (artefakt `neontext`) albo w **Releases** (asset `neontext-latest`).
 
 ## Komendy
 

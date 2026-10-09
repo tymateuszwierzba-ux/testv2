@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "package": "pl.neontext.client.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "ChatComponentMixin",
+    "ChatScreenMixin",
+    "FontMixin",
+    "GuiRenderStateMixin",
+    "GuiTextRenderStateMixin",
+    "HudMixin",
+    "MinecraftMixin",
+    "PlayerTabOverlayMixin",
+    "TextFeatureRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

@@ -43,9 +43,39 @@ jobs:
           grep -nE "error:|FAILURE:|What went wrong|Caused by|Execution failed|Could not|error\]" build-log.txt \
             | head -40 | while IFS= read -r line; do echo "::error::${line}"; done
 
+      - name: Verify and list jar contents
+        run: |
+          JAR=$(ls build/libs/neontext-*.jar | head -1)
+          {
+            echo '### Jar contents'
+            echo '```'
+            unzip -l "$JAR" | head -80
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          for required in fabric.mod.json neontext.client.mixins.json assets/neontext/icon.png \
+                          assets/neontext/lang/en_us.json assets/neontext/lang/pl_pl.json; do
+            if unzip -l "$JAR" | grep -q "$required"; then
+              echo "::notice::jar contains $required"
+            else
+              echo "::error::jar is missing $required"
+            fi
+          done
+          unzip -l "$JAR" | grep -c "\.class" | xargs -I{} echo "::notice::jar contains {} classes"
+
       - name: Upload mod jar
         uses: actions/upload-artifact@v5
         with:
           name: neontext
           path: build/libs/*.jar
           if-no-files-found: error
+
+      - name: Attach jar to release (manual runs)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create neontext-latest build/libs/neontext-*.jar \
+            --title "NeonText dev build" \
+            --notes "Automated build of commit ${GITHUB_SHA::12} (Minecraft 26.3)." \
+            --target "$GITHUB_SHA" 2>/dev/null \
+            || gh release upload neontext-latest build/libs/neontext-*.jar --clobber

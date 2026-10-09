@@ -37,6 +37,12 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Report errors as annotations
+        if: failure()
+        run: |
+          grep -nE "error:|FAILURE:|What went wrong|Caused by|Execution failed|Could not|error\]" build-log.txt \
+            | head -40 | while IFS= read -r line; do echo "::error::${line}"; done
+
       - name: Upload mod jar
         uses: actions/upload-artifact@v5
         with:

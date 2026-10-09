@@ -30,7 +30,8 @@ public final class TextAnimator {
             return null;
         }
         int glyphs = count(source);
-        return new AnimatedPreparedText(prepared, style, seed, NeonRuntime.time(), glyphs);
+        // live clock: prepared text can be cached across frames, but the animation must keep moving
+        return new AnimatedPreparedText(prepared, style, seed, NeonRuntime.time(), glyphs, NeonRuntime::time);
     }
 
     /** Character count, used as the "total" for normalised effects like the fade sweep. */

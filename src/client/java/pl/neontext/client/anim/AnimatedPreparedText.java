@@ -23,13 +23,21 @@ public final class AnimatedPreparedText implements Font.PreparedText {
     private final int seed;
     private final long timeMs;
     private final int total;
+    /** Live animation clock - {@link #visit} runs every frame, so the time must not be frozen at build. */
+    private final java.util.function.LongSupplier clock;
 
     public AnimatedPreparedText(Font.PreparedText delegate, AnimStyle style, int seed, long timeMs, int glyphCount) {
+        this(delegate, style, seed, timeMs, glyphCount, () -> timeMs);
+    }
+
+    public AnimatedPreparedText(Font.PreparedText delegate, AnimStyle style, int seed, long timeMs, int glyphCount,
+                                java.util.function.LongSupplier clock) {
         this.delegate = delegate;
         this.style = style;
         this.seed = seed;
         this.timeMs = timeMs;
         this.total = Math.max(1, glyphCount);
+        this.clock = clock == null ? () -> timeMs : clock;
     }
 
     @Override
@@ -63,7 +71,8 @@ public final class AnimatedPreparedText implements Font.PreparedText {
     }
 
     private TextRenderable wrap(TextRenderable renderable, int i) {
-        GlyphStyle g = EffectEngine.compute(style, i, total, renderable.left(), renderable.top(), timeMs, seed);
+        GlyphStyle g = EffectEngine.compute(style, i, total, renderable.left(), renderable.top(),
+                clock.getAsLong(), seed);
         return new AnimatedRenderable(renderable, g);
     }
 

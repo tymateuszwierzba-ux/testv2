@@ -184,8 +184,19 @@ public final class NeonContext {
      */
     public static AnimStyle resolve(Object textSequence, AnimTarget target, Hologram hologram,
                                     pl.neontext.client.holo.NeonTextSequence tagged) {
+        // the sequence itself knows what it is - this keeps the font pipeline (which has no stamps)
+        // from wrapping holograms and previews with the ambient target's style
+        if (tagged == null && textSequence instanceof pl.neontext.client.holo.NeonTextSequence seq) {
+            tagged = seq;
+        }
+        if (hologram == null && textSequence instanceof pl.neontext.client.holo.HologramText holoText) {
+            hologram = holoText.hologram();
+        }
         if (tagged != null) {
-            return NeonRuntime.masterEnabled() && tagged.style().animates() ? tagged.style() : null;
+            // a hologram keeps its own identity handling below
+            if (!(tagged instanceof pl.neontext.client.holo.HologramText)) {
+                return NeonRuntime.masterEnabled() && tagged.style().animates() ? tagged.style() : null;
+            }
         }
         if (hologram != null) {
             if (!NeonRuntime.masterEnabled() || !hologram.enabled

@@ -102,12 +102,14 @@ public final class RecoloringVertexConsumer implements VertexConsumer {
     }
 
     @Override
-    public void setLight(int uv) {
+    public VertexConsumer setLight(int uv) {
         delegate.setLight(uv);
+        return this;
     }
 
     @Override
-    public void setOverlay(int uv) {
+    public VertexConsumer setOverlay(int uv) {
         delegate.setOverlay(uv);
+        return this;
     }
 }

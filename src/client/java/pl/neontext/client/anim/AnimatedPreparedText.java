@@ -45,6 +45,11 @@ public final class AnimatedPreparedText implements Font.PreparedText {
     }
 
     @Override
+    public net.minecraft.client.gui.navigation.ScreenRectangle bounds() {
+        return delegate.bounds();
+    }
+
+    @Override
     public void visit(Font.GlyphVisitor visitor) {
         // one shared counter keeps the glyph index aligned with the character index: glyphs and
         // empty areas (spaces) advance it, decorative effects do not
